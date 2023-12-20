@@ -1,0 +1,16 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AHStats", "AHStats.csproj", "{1592AE43-4200-450B-A46D-B8635138F7BB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1592AE43-4200-450B-A46D-B8635138F7BB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1592AE43-4200-450B-A46D-B8635138F7BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1592AE43-4200-450B-A46D-B8635138F7BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1592AE43-4200-450B-A46D-B8635138F7BB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
