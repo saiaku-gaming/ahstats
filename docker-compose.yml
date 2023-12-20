@@ -11,7 +11,7 @@ services:
       - "ahstats_db"
     container_name: ahstats
     ports:
-      - "61000:80"
+      - "5115:80"
     build:
       context: .
       dockerfile: Dockerfile
