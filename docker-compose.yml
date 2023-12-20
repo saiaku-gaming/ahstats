@@ -1,0 +1,37 @@
+﻿version: '3.4'
+
+networks:
+  dev:
+    driver: bridge
+
+services:
+  ahstats:
+    image: ''
+    depends_on:
+      - "ahstats_db"
+    container_name: ahstats
+    ports:
+      - "61000:80"
+    build:
+      context: .
+      dockerfile: Dockerfile
+    networks:
+      - dev
+
+  ahstats_db:
+    image: postgres:latest
+    container_name: ahstats_db
+    environment:
+      - POSTGRES_USER=ahstats
+      - POSTGRES_PASSWORD=ahstats
+      - POSTGRES_DB=ahstats
+    ports:
+      - "5432:5432"
+    restart: always
+    volumes:
+      - ahstats_data:/var/lib/postgresql/data/
+    networks:
+      - dev
+
+volumes:
+  ahstats_data:
