@@ -6,7 +6,7 @@ networks:
 
 services:
   ahstats:
-    image: ''
+    image: '${REGISTRY:-ahstats}/ahstats.api:${PLATFORM:-linux}-${TAG:-latest}'
     depends_on:
       - "ahstats_db"
     container_name: ahstats
