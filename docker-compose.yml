@@ -14,6 +14,9 @@ services:
       - "5115:80"
     networks:
       - dev
+    environment:
+      - WowClient__ClientId
+      - WowClient__ClientSecret
 
   ahstats_db:
     image: postgres:latest

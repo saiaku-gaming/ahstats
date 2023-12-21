@@ -7,14 +7,18 @@ pipeline {
         }
     }
     stages {
-        stage('Build'){
+        stage('Build') {
             steps {
                 script {
                     docker.build("ahstats")
                 }
             }
         }
-        stage('Deploy'){
+        stage('Deploy') {
+            environment {
+                WowClient__ClientId=credentials('wowClientId')
+                WowClient__ClientSecret=credentials('wowClientSecret')
+            }
             steps {
                 script {
                     sh 'docker-compose up -d'
