@@ -6,15 +6,12 @@ networks:
 
 services:
   ahstats:
-    image: '${REGISTRY:-ahstats}/ahstats.api:${PLATFORM:-linux}-${TAG:-latest}'
+    image: 'ahstats'
     depends_on:
       - "ahstats_db"
     container_name: ahstats
     ports:
       - "5115:80"
-    build:
-      context: .
-      dockerfile: Dockerfile
     networks:
       - dev
 
@@ -29,9 +26,6 @@ services:
       - "5432:5432"
     restart: always
     volumes:
-      - ahstats_data:/var/lib/postgresql/data/
+      - /opt/ahstats/postgres:/var/lib/postgresql/data/
     networks:
       - dev
-
-volumes:
-  ahstats_data:
