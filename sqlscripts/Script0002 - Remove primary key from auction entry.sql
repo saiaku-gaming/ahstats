@@ -1,0 +1,1 @@
+﻿ALTER TABLE auction_entry DROP CONSTRAINT auction_entry_pkey;
