@@ -1,4 +1,4 @@
-﻿properties([pipelineTriggers([githubPush()])])
+properties([pipelineTriggers([githubPush()])])
 
 pipeline {
     agent {
