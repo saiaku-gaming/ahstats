@@ -1,20 +1,16 @@
-﻿FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
-WORKDIR /app
-EXPOSE 80
-EXPOSE 443
+﻿FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+ARG TARGETARCH
+WORKDIR /source
 
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-WORKDIR /
-COPY ["AHStats.csproj", "./"]
-RUN dotnet restore "AHStats.csproj"
+COPY *.csproj .
+RUN dotnet restore -a $TARGETARCH
+
 COPY . .
-WORKDIR "/"
-RUN dotnet build "AHStats.csproj" -c Release -o /app/build
+RUN dotnet publish -a $TARGETARCH --no-restore -o /app
 
-FROM build AS publish
-RUN dotnet publish "AHStats.csproj" -c Release -o /app/publish /p:UseAppHost=false
-
-FROM base AS final
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
+EXPOSE 8080
 WORKDIR /app
-COPY --from=publish /app/publish .
+COPY --from=build /app .
+USER $APP_UID
 ENTRYPOINT ["dotnet", "AHStats.dll"]

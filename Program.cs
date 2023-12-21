@@ -1,3 +1,4 @@
+using AHStats.extensions;
 using AHStats.gateways;
 using AHStats.gateways.auth;
 using AHStats.jobs;
@@ -37,6 +38,8 @@ builder.Services.AddSingleton<WowClient>();
 DefaultTypeMap.MatchNamesWithUnderscores = true;
 
 var app = builder.Build();
+
+app.MigrateDatabase<Program>();
 
 if (app.Environment.IsDevelopment())
 {
