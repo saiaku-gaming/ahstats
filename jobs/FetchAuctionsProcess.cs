@@ -22,6 +22,8 @@ public class FetchAuctionsProcess(WowClient wowClient, IItemDataService itemData
 
             if (auction == null)
             {
+                var previousAuction = await auctionService.GetLatestAuction();
+                
                 logger.LogInformation($"New Auction found with id: {auctionId}");
                 logger.LogInformation("Fetch started");
                 
@@ -60,6 +62,12 @@ public class FetchAuctionsProcess(WowClient wowClient, IItemDataService itemData
                 }
                 
                 logger.LogInformation("Fetch finished");
+                
+                logger.LogInformation("Update sold items...");
+
+                var result = await auctionEntryService.UpdateSoldAuctionEntries(previousAuction.Id, auctionId);
+                
+                logger.LogInformation($"Update finished, {result} items sold");
             }
             
             await Task.Delay(1000 * 60 * 10, stoppingToken);

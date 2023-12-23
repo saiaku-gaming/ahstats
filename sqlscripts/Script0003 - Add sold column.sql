@@ -1,0 +1,1 @@
+﻿ALTER TABLE auction_entry ADD COLUMN sold BOOLEAN NOT NULL DEFAULT false;

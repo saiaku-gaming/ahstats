@@ -21,6 +21,8 @@
       <EmbeddedResource Include="sqlscripts\Script0001 - Create tables.sql" />
       <None Remove="sqlscripts\Script0002 - Remove primary key from auction entry.sql" />
       <EmbeddedResource Include="sqlscripts\Script0002 - Remove primary key from auction entry.sql" />
+      <None Remove="sqlscripts\Script0003 - Add sold column.sql" />
+      <EmbeddedResource Include="sqlscripts\Script0003 - Add sold column.sql" />
     </ItemGroup>
 
 </Project>

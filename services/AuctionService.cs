@@ -17,4 +17,9 @@ public class AuctionService(IDbService dbService) : IAuctionService
     {
         return await dbService.GetAsync<Auction>("""SELECT * FROM auction WHERE id=@Id""", new { id });
     }
+
+    public async Task<Auction> GetLatestAuction()
+    {
+        return await dbService.GetAsync<Auction>("""SELECT * FROM auction ORDER BY created DESC LIMIT 1""", new {});
+    }
 }
