@@ -30,6 +30,8 @@ public class FetchAuctionsProcess(WowClient wowClient, IItemDataService itemData
                 await auctionService.CreateAuction(new Auction { Id = auctionId });
 
                 var counter = 1;
+
+                var newAuctionEntries = new List<AuctionEntry>();
                 
                 foreach (var rawAuctionEntry in auctionsResponse.Auctions)
                 {
@@ -50,7 +52,7 @@ public class FetchAuctionsProcess(WowClient wowClient, IItemDataService itemData
                     }
 
                     var auctionEntry = AuctionEntry.Map(rawAuctionEntry);
-                    auctionEntry.Item = item;
+                    newAuctionEntries.Add(auctionEntry);
 
                     await auctionEntryService.CreateAuctionEntry(auctionId, auctionEntry);
 
@@ -62,12 +64,22 @@ public class FetchAuctionsProcess(WowClient wowClient, IItemDataService itemData
                 }
                 
                 logger.LogInformation("Fetch finished");
-                
-                logger.LogInformation("Update sold items...");
 
-                var result = await auctionEntryService.UpdateSoldAuctionEntries(previousAuction.Id, auctionId);
-                
-                logger.LogInformation($"Update finished, {result} items sold");
+                if (previousAuction != null)
+                {
+                    var previousAuctionEntries =
+                        await auctionEntryService.GetAuctionEntriesFromAuctionId(previousAuction.Id);
+                    var newAuctionEntryIds = newAuctionEntries.Select(nae => nae.Id);
+
+                    previousAuctionEntries.RemoveAll(pae => !newAuctionEntryIds.Contains(pae.Id));
+                    
+                    logger.LogInformation("Update sold items...");
+
+                    var result = await auctionEntryService.UpdateSoldAuctionEntries(previousAuction.Id, 
+                        previousAuctionEntries.Select(pae => pae.Id).ToList());
+
+                    logger.LogInformation($"Update finished, {result} items sold");
+                }
             }
             
             await Task.Delay(1000 * 60 * 10, stoppingToken);
@@ -77,10 +89,9 @@ public class FetchAuctionsProcess(WowClient wowClient, IItemDataService itemData
     // ReSharper disable once InconsistentNaming
     private static string CreateMD5(string input)
     {
-        using var md5 = MD5.Create();
 
         var inputBytes = Encoding.ASCII.GetBytes(input);
-        var hashBytes = md5.ComputeHash(inputBytes);
+        var hashBytes = MD5.HashData(inputBytes);
 
         return Convert.ToHexString(hashBytes);
     }

@@ -5,7 +5,7 @@ namespace AHStats.gateways.models;
 public class AuctionEntry
 {
     public long Id { get; set; }
-    public ItemData? Item { get; set; }
+    public int ItemId { get; set; }
     public int Bid { get; set; }
     public int Buyout { get; set; }
     public int Quantity { get; set; }
@@ -19,7 +19,8 @@ public class AuctionEntry
           Bid = rawAuction.Bid,
           Buyout = rawAuction.Buyout,
           Quantity = rawAuction.Quantity,
-          TimeLeft = rawAuction.time_left
+          TimeLeft = rawAuction.time_left,
+          ItemId = rawAuction.Item.Id
         };
     }
 }
