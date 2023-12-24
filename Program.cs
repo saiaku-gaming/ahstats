@@ -14,6 +14,16 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddControllers();
 
+builder.Services.AddLogging(opt =>
+{
+    opt.AddSimpleConsole(c =>
+    {
+        c.IncludeScopes = true;
+        c.SingleLine = true;
+        c.TimestampFormat = "[HH:mm:ss] ";
+    });
+});
+
 builder.Services.Configure<WowClientOptions>(builder.Configuration.GetSection(WowClientOptions.WowClient));
 
 builder.Services.AddScoped<ITokenProvider, TokenProvider>();
