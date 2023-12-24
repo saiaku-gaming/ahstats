@@ -1,10 +1,12 @@
 using AHStats.extensions;
 using AHStats.gateways;
 using AHStats.gateways.auth;
+using AHStats.gateways.models;
 using AHStats.jobs;
 using AHStats.options;
 using AHStats.services;
 using Dapper;
+using Z.Dapper.Plus;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -40,6 +42,19 @@ DefaultTypeMap.MatchNamesWithUnderscores = true;
 var app = builder.Build();
 
 app.MigrateDatabase<Program>();
+
+DapperPlusManager.Entity<AuctionEntry>().Table("auction_entry")
+    .Identity(ae => ae.Id)
+    .Map(ae => new
+    {
+        id = ae.Id,
+        auction_id = ae.AuctionId,
+        item_id = ae.ItemId,
+        bid = ae.Bid,
+        buyout = ae.Buyout,
+        quantity = ae.Quantity,
+        time_left = ae.TimeLeft
+    });
 
 if (app.Environment.IsDevelopment())
 {

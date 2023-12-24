@@ -31,30 +31,29 @@ public class FetchAuctionsProcess(WowClient wowClient, IItemDataService itemData
 
                 var counter = 1;
 
-                var newAuctionEntries = new List<AuctionEntry>();
-                
-                foreach (var rawAuctionEntry in auctionsResponse.Auctions)
+                var newAuctionEntries = auctionsResponse.Auctions
+                    .Select(rae => AuctionEntry.Map(auctionId, rae)).ToList();
+
+                var itemIds = newAuctionEntries.Select(nae => nae.ItemId).Distinct().ToList();
+
+                foreach (var itemId in itemIds)
                 {
-                    var item = await itemDataService.GetItemData(rawAuctionEntry.Item.Id);
+                    var item = await itemDataService.GetItemData(itemId);
 
                     if (item == null)
                     {
-                        item = await wowClient.GetItemData(rawAuctionEntry.Item.Id);
+                        item = await wowClient.GetItemData(itemId);
                         ++counter;
 
                         if (item == null)
                         {
-                            logger.LogWarning($"Unable to find item with id: {rawAuctionEntry.Item.Id}");
+                            logger.LogWarning($"Unable to find item with id: {itemId}");
+                            newAuctionEntries.RemoveAll(nae => nae.ItemId == itemId);
                             continue;
                         }
 
                         await itemDataService.CreateItemData(item);
                     }
-
-                    var auctionEntry = AuctionEntry.Map(rawAuctionEntry);
-                    newAuctionEntries.Add(auctionEntry);
-
-                    await auctionEntryService.CreateAuctionEntry(auctionId, auctionEntry);
 
                     if (counter != 100) continue;
                     
@@ -62,6 +61,8 @@ public class FetchAuctionsProcess(WowClient wowClient, IItemDataService itemData
                     counter = 0;
                     await Task.Delay(2000, stoppingToken);
                 }
+
+                await auctionEntryService.CreateAuctionEntries(newAuctionEntries);
                 
                 logger.LogInformation("Fetch finished");
 

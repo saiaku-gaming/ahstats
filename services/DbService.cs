@@ -1,6 +1,7 @@
 ﻿using System.Data;
 using Dapper;
 using Npgsql;
+using Z.Dapper.Plus;
 
 namespace AHStats.services;
 
@@ -21,5 +22,12 @@ public class DbService(IConfiguration configuration) : IDbService
     public async Task<int> EditData(string command, object parms)
     {
         return await _db.ExecuteAsync(command, parms);
+    }
+
+    public Task BulkInsert<T>(IEnumerable<T> entities)
+    { 
+        _db.BulkInsert(entities);
+
+        return Task.CompletedTask;
     }
 }

@@ -27,4 +27,9 @@ public class AuctionEntryService(IDbService dbService) : IAuctionEntryService
                 SELECT * FROM auction_entry WHERE auction_id = @AuctionId
         """, new { auctionId });
     }
+
+    public Task CreateAuctionEntries(IEnumerable<AuctionEntry> auctionEntries)
+    {
+        return dbService.BulkInsert(auctionEntries);
+    }
 }
