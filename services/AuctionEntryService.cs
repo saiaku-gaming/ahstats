@@ -17,7 +17,7 @@ public class AuctionEntryService(IDbService dbService) : IAuctionEntryService
     public async Task<int> UpdateSoldAuctionEntries(string previousAuctionId, List<int> soldAuctionEntries)
     {
         return await dbService.EditData("""
-            UPDATE auction_entry SET sold = true WHERE auction_id = @PreviousAuctionId AND id ANY (@SoldAuctionEntries)
+            UPDATE auction_entry SET sold = true WHERE auction_id = @PreviousAuctionId AND id = ANY (@SoldAuctionEntries)
         """, new { previousAuctionId, soldAuctionEntries });
     }
 
