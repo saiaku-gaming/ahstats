@@ -1,4 +1,5 @@
-﻿using System.Security.Cryptography;
+﻿using System.Diagnostics;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using AHStats.gateways;
@@ -23,6 +24,9 @@ public class FetchAuctionsProcess(WowClient wowClient, IItemDataService itemData
             if (auction == null)
             {
                 var previousAuction = await auctionService.GetLatestAuction();
+
+                var timer = new Stopwatch();
+                timer.Start();
                 
                 logger.LogInformation($"New Auction found with id: {auctionId}");
                 logger.LogInformation("Fetch started");
@@ -64,15 +68,20 @@ public class FetchAuctionsProcess(WowClient wowClient, IItemDataService itemData
 
                 await auctionEntryService.CreateAuctionEntries(newAuctionEntries);
                 
-                logger.LogInformation("Fetch finished");
+                timer.Stop();
+                var timeTaken = timer.Elapsed;
+                
+                logger.LogInformation($"Fetch finished, time elapsed: {timeTaken:m\\:ss\\.fff}");
 
                 if (previousAuction != null)
                 {
-                    var previousAuctionEntries =
+                    var previousAuctionEntries = 
                         await auctionEntryService.GetAuctionEntriesFromAuctionId(previousAuction.Id);
+                    
                     var newAuctionEntryIds = newAuctionEntries.Select(nae => nae.Id);
 
-                    previousAuctionEntries.RemoveAll(pae => !newAuctionEntryIds.Contains(pae.Id));
+                    previousAuctionEntries.RemoveAll(pae => 
+                        pae.TimeLeft == "SHORT" || pae.TimeLeft == "MEDIUM" || !newAuctionEntryIds.Contains(pae.Id));
                     
                     logger.LogInformation("Update sold items...");
 
