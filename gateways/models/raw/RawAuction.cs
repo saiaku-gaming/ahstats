@@ -2,7 +2,7 @@
 
 public class RawAuction
 {
-    public long Id { get; set; }
+    public int Id { get; set; }
     public RawAuctionItem Item { get; set; }
     public int Bid { get; set; }
     public int Buyout { get; set; }

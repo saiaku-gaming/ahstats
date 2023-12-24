@@ -4,7 +4,7 @@ namespace AHStats.gateways.models;
 
 public class AuctionEntry
 {
-    public long Id { get; set; }
+    public int Id { get; set; }
     public int ItemId { get; set; }
     public int Bid { get; set; }
     public int Buyout { get; set; }
