@@ -42,6 +42,8 @@ public class StatsController(WowClient wowClient, IItemDataService itemDataServi
         {
             var soldEntries = 
                 await auctionEntryService.GetSoldAuctionEntriesByActionIdAndItemIds(auctionIds, item.Id);
+            soldEntries.Sort((a, b) => 
+                (a.Buyout / a.Quantity) - (b.Buyout / b.Quantity));
             var toSkip = (int)Math.Floor(soldEntries.Count * 0.05);
             soldEntries = soldEntries.Skip(toSkip).Take(soldEntries.Count - toSkip * 2).ToList();
 
@@ -57,11 +59,11 @@ public class StatsController(WowClient wowClient, IItemDataService itemDataServi
             {
                 itemSoldList.Add(new
                 {
-                    avg = soldEntries.Sum(se => se.Buyout) / soldEntries.Count,
-                    median = soldEntries[soldEntries.Count / 2].Buyout,
-                    min = soldEntries[0].Buyout,
-                    max = soldEntries[^1].Buyout,
-                    totalSold = soldEntries.Count,
+                    avg = soldEntries.Sum(se => se.Buyout / se.Quantity) / soldEntries.Count,
+                    median = soldEntries[soldEntries.Count / 2].Buyout / soldEntries[soldEntries.Count / 2].Quantity,
+                    min = soldEntries[0].Buyout / soldEntries[0].Quantity,
+                    max = soldEntries[^1].Buyout / soldEntries[^1].Quantity,
+                    totalSold = soldEntries.Sum(se => se.Quantity),
                     name = item.Name
                 });
             }
