@@ -26,7 +26,9 @@ public class AuctionEntryService(IDbService dbService) : IAuctionEntryService
     public async Task<List<AuctionEntry>> GetSoldAuctionEntriesByActionIdAndItemIds(List<string> auctionIds, int itemId)
     {
         return await dbService.GetAll<AuctionEntry>("""
-            SELECT * FROM auction_entry WHERE sold AND item_id = @ItemId AND auction_id = ANY (@AuctionIds)
+            SELECT * FROM auction_entry 
+                WHERE sold AND item_id = @ItemId AND auction_id = ANY (@AuctionIds)
+                ORDER BY buyout ASC
         """, new { auctionIds, itemId });
     }
 }

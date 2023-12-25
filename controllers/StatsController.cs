@@ -42,14 +42,14 @@ public class StatsController(WowClient wowClient, IItemDataService itemDataServi
         {
             var soldEntries = 
                 await auctionEntryService.GetSoldAuctionEntriesByActionIdAndItemIds(auctionIds, item.Id);
+            var toSkip = (int)Math.Floor(soldEntries.Count * 0.05);
+            soldEntries = soldEntries.Skip(toSkip).Take(soldEntries.Count - toSkip * 2).ToList();
 
             if (soldEntries.Count == 0)
             {
                 itemSoldList.Add(new
                 {
-                    avg = -1,
-                    min = -1,
-                    max = -1,
+                    msg = "No sold entries for this item",
                     name = item.Name
                 });
             }
@@ -58,8 +58,10 @@ public class StatsController(WowClient wowClient, IItemDataService itemDataServi
                 itemSoldList.Add(new
                 {
                     avg = soldEntries.Sum(se => se.Buyout) / soldEntries.Count,
-                    min = soldEntries.Min(se => se.Buyout),
-                    max = soldEntries.Max(se => se.Buyout),
+                    median = soldEntries[soldEntries.Count / 2].Buyout,
+                    min = soldEntries[0].Buyout,
+                    max = soldEntries[^1].Buyout,
+                    totalSold = soldEntries.Count,
                     name = item.Name
                 });
             }

@@ -1,0 +1,1 @@
+﻿UPDATE auction_entry SET sold = false WHERE sold AND buyout = 0;

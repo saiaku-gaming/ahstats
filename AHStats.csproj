@@ -26,6 +26,8 @@
       <EmbeddedResource Include="sqlscripts\Script0003 - Add sold column.sql" />
       <None Remove="sqlscripts\Script0004 - Creates indexes.sql" />
       <EmbeddedResource Include="sqlscripts\Script0004 - Creates indexes.sql" />
+      <None Remove="sqlscripts\Script0005 - Set sold false on 0 buyout.sql" />
+      <EmbeddedResource Include="sqlscripts\Script0005 - Set sold false on 0 buyout.sql" />
     </ItemGroup>
 
 </Project>
