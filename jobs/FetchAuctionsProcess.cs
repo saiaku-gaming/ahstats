@@ -75,6 +75,8 @@ public class FetchAuctionsProcess(WowClient wowClient, IItemDataService itemData
 
                 if (previousAuction != null)
                 {
+                    logger.LogInformation("Update sold items...");
+                    
                     var previousAuctionEntries = 
                         await auctionEntryService.GetAuctionEntriesFromAuctionId(previousAuction.Id);
                     
@@ -83,7 +85,6 @@ public class FetchAuctionsProcess(WowClient wowClient, IItemDataService itemData
                     previousAuctionEntries.RemoveAll(pae => 
                         pae.TimeLeft == "SHORT" || pae.TimeLeft == "MEDIUM" || !newAuctionEntryIds.Contains(pae.Id));
                     
-                    logger.LogInformation("Update sold items...");
 
                     var result = await auctionEntryService.UpdateSoldAuctionEntries(previousAuction.Id, 
                         previousAuctionEntries.Select(pae => pae.Id).ToList());

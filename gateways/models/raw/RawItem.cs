@@ -2,7 +2,7 @@
 
 public class RawItem
 {
-    public long Id { get; set; }
+    public int Id { get; set; }
     public RawName Name { get; set; }
     public RawQuality Quality { get; set; }
     public int Level { get; set; }

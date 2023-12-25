@@ -4,16 +4,6 @@ namespace AHStats.services;
 
 public class AuctionEntryService(IDbService dbService) : IAuctionEntryService
 {
-    public async Task<bool> CreateAuctionEntry(string auctionId, AuctionEntry auctionEntry)
-    {
-        await dbService.EditData("""
-                                    INSERT INTO auction_entry(id, auction_id, item_id, bid, buyout, quantity, time_left)
-                                    VALUES (@Id, @AuctionId, @ItemId, @Bid, @Buyout, @Quantity, @TimeLeft)
-                                 """, new { auctionEntry.Id, auctionId, auctionEntry.ItemId, auctionEntry.Bid, auctionEntry.Buyout, auctionEntry.Quantity, auctionEntry.TimeLeft });
-
-        return true;
-    }
-
     public async Task<int> UpdateSoldAuctionEntries(string previousAuctionId, List<int> soldAuctionEntries)
     {
         return await dbService.EditData("""
@@ -31,5 +21,12 @@ public class AuctionEntryService(IDbService dbService) : IAuctionEntryService
     public Task CreateAuctionEntries(IEnumerable<AuctionEntry> auctionEntries)
     {
         return dbService.BulkInsert(auctionEntries);
+    }
+
+    public async Task<List<AuctionEntry>> GetSoldAuctionEntriesByActionIdAndItemIds(List<string> auctionIds, int itemId)
+    {
+        return await dbService.GetAll<AuctionEntry>("""
+            SELECT * FROM auction_entry WHERE sold AND item_id = @ItemId AND auction_id = ANY (@AuctionIds)
+        """, new { auctionIds, itemId });
     }
 }

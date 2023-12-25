@@ -9,4 +9,6 @@ public interface IAuctionService
     public Task<Auction?> GetAuction(string id);
 
     public Task<Auction?> GetLatestAuction();
+
+    public Task<List<Auction>> GetAuctionByAge(int hours);
 }

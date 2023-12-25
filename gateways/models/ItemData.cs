@@ -4,7 +4,7 @@ namespace AHStats.gateways.models;
 
 public class ItemData
 {
-    public long Id { get; set; }
+    public int Id { get; set; }
     public string Name { get; set; }
     public string Quality { get; set; }
     public int Level { get; set; }

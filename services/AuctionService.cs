@@ -22,4 +22,11 @@ public class AuctionService(IDbService dbService) : IAuctionService
     {
         return await dbService.GetAsync<Auction>("""SELECT * FROM auction ORDER BY created DESC LIMIT 1""", new {});
     }
+
+    public async Task<List<Auction>> GetAuctionByAge(int hours)
+    {
+        return await dbService.GetAll<Auction>("""
+            SELECT * FROM auction WHERE created >= NOW() - @Interval
+        """, new { Interval = TimeSpan.FromHours(hours) });
+    }
 }

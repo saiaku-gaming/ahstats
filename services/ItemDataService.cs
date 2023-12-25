@@ -45,6 +45,13 @@ public class ItemDataService(IDbService dbService) : IItemDataService
         return await dbService.GetAsync<ItemData>("SELECT * FROM item_data WHERE id=@Id", new { id });
     }
 
+    public async Task<List<ItemData>> GetItemDataFromName(string name)
+    {
+        return await dbService.GetAll<ItemData>("""
+            SELECT * FROM item_data WHERE name ilike @Name                                        
+        """, new { name = $"%{name}%" });
+    }
+
     public async Task<List<ItemData>> GetItemDataList()
     {
         return await dbService.GetAll<ItemData>("SELECT * FROM item_data", new { });
