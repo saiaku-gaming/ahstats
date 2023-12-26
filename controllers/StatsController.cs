@@ -59,7 +59,7 @@ public class StatsController(WowClient wowClient, IItemDataService itemDataServi
             {
                 var totalSold = soldEntries.Sum(se => se.Quantity);
                 var median = 0;
-                var count = totalSold;
+                var count = totalSold / 2;
                 
                 foreach (var soldEntry in soldEntries)
                 {
@@ -72,7 +72,7 @@ public class StatsController(WowClient wowClient, IItemDataService itemDataServi
                 
                 itemSoldList.Add(new
                 {
-                    avg = soldEntries.Sum(se => se.BuyoutPerItem) / totalSold,
+                    avg = soldEntries.Sum(se => se.BuyoutPerItem) / soldEntries.Count,
                     median,
                     min = soldEntries[0].BuyoutPerItem,
                     max = soldEntries[^1].BuyoutPerItem,
