@@ -43,7 +43,7 @@ public class StatsController(WowClient wowClient, IItemDataService itemDataServi
             var soldEntries = 
                 await auctionEntryService.GetSoldAuctionEntriesByActionIdAndItemIds(auctionIds, item.Id);
             soldEntries.Sort((a, b) => 
-                (a.Buyout / a.Quantity) - (b.Buyout / b.Quantity));
+                a.BuyoutPerItem - b.BuyoutPerItem);
             var toSkip = (int)Math.Floor(soldEntries.Count * 0.05);
             soldEntries = soldEntries.Skip(toSkip).Take(soldEntries.Count - toSkip * 2).ToList();
 
@@ -57,13 +57,26 @@ public class StatsController(WowClient wowClient, IItemDataService itemDataServi
             }
             else
             {
+                var totalSold = soldEntries.Sum(se => se.Quantity);
+                var median = 0;
+                var count = totalSold;
+                
+                foreach (var soldEntry in soldEntries)
+                {
+                    count -= soldEntry.Quantity;
+                    if(count > 0) continue;
+
+                    median = soldEntry.BuyoutPerItem;
+                    break;
+                }
+                
                 itemSoldList.Add(new
                 {
-                    avg = soldEntries.Sum(se => se.Buyout / se.Quantity) / soldEntries.Count,
-                    median = soldEntries[soldEntries.Count / 2].Buyout / soldEntries[soldEntries.Count / 2].Quantity,
-                    min = soldEntries[0].Buyout / soldEntries[0].Quantity,
-                    max = soldEntries[^1].Buyout / soldEntries[^1].Quantity,
-                    totalSold = soldEntries.Sum(se => se.Quantity),
+                    avg = soldEntries.Sum(se => se.BuyoutPerItem) / totalSold,
+                    median,
+                    min = soldEntries[0].BuyoutPerItem,
+                    max = soldEntries[^1].BuyoutPerItem,
+                    totalSold,
                     name = item.Name
                 });
             }

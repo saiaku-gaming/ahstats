@@ -12,6 +12,8 @@ public class AuctionEntry
     public int Quantity { get; set; }
     public string TimeLeft { get; set; } = "";
 
+    public int BuyoutPerItem => Buyout / Quantity;
+
     public static AuctionEntry Map(string auctionId, RawAuction rawAuction)
     {
         return new AuctionEntry
