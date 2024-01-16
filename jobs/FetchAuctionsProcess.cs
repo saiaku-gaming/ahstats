@@ -84,7 +84,7 @@ public class FetchAuctionsProcess(WowClient wowClient, IItemDataService itemData
 
                     previousAuctionEntries.RemoveAll(pae => 
                         pae.Buyout <= 0 || pae.TimeLeft == "SHORT" || pae.TimeLeft == "MEDIUM"
-                            || !newAuctionEntryIds.Contains(pae.Id));
+                            || newAuctionEntryIds.Contains(pae.Id));
                     
 
                     var result = await auctionEntryService.UpdateSoldAuctionEntries(previousAuction.Id, 
