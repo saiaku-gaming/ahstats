@@ -11,4 +11,6 @@ public interface IAuctionService
     public Task<Auction?> GetLatestAuction();
 
     public Task<List<Auction>> GetAuctionByAge(int hours);
+
+    public Task<bool> DeleteAuction(string id);
 }

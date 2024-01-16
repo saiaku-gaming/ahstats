@@ -29,4 +29,11 @@ public class AuctionService(IDbService dbService) : IAuctionService
             SELECT * FROM auction WHERE created >= NOW() - @Interval
         """, new { Interval = TimeSpan.FromHours(hours) });
     }
+
+    public async Task<bool> DeleteAuction(string id)
+    {
+        await dbService.EditData("DELETE FROM auction WHERE id=@Id", new { id });
+
+        return true;
+    }
 }
