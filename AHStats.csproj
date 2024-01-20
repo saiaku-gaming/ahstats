@@ -28,6 +28,8 @@
       <EmbeddedResource Include="sqlscripts\Script0004 - Creates indexes.sql" />
       <None Remove="sqlscripts\Script0005 - Set sold false on 0 buyout.sql" />
       <EmbeddedResource Include="sqlscripts\Script0005 - Set sold false on 0 buyout.sql" />
+      <None Remove="sqlscripts\Script0006 - Add auction house to auction.sql" />
+      <EmbeddedResource Include="sqlscripts\Script0006 - Add auction house to auction.sql" />
     </ItemGroup>
 
 </Project>

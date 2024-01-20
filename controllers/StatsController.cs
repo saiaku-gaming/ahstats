@@ -1,4 +1,5 @@
 ﻿using AHStats.gateways;
+using AHStats.gateways.models;
 using AHStats.services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,7 +13,7 @@ public class StatsController(WowClient wowClient, IItemDataService itemDataServi
     [HttpGet]
     public async Task<IActionResult> Ping()
     {
-        return Ok(await wowClient.GetAuctions());
+        return Ok(await wowClient.GetAuctions(AuctionHouse.Horde));
     }
 
     [HttpGet("item/{id}")]
@@ -29,12 +30,12 @@ public class StatsController(WowClient wowClient, IItemDataService itemDataServi
 
     [HttpGet("sold")]
     public async Task<IActionResult> GetSoldByTime([FromQuery(Name = "hours")]int hours,
-        [FromQuery(Name = "name")] string name)
+        [FromQuery(Name = "name")] string name, [FromQuery(Name = "auctionHouse")] int? auctionHouse)
     {
         var items = await itemDataService.GetItemDataFromName(name);
         if (items.Count == 0) return NotFound();
 
-        var auctionIds = (await auctionService.GetAuctionByAge(hours)).Select(a => a.Id).ToList();
+        var auctionIds = (await auctionService.GetAuctionByAge(hours, auctionHouse ?? (int)AuctionHouse.Horde)).Select(a => a.Id).ToList();
 
         var itemSoldList = new List<object>();
         

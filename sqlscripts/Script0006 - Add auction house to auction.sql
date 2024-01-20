@@ -1,0 +1,1 @@
+﻿ALTER TABLE auction ADD COLUMN auction_house INTEGER NOT NULL DEFAULT 6;

@@ -4,4 +4,5 @@ public class Auction
 {
     public string Id { get; set; }
     public DateTime Created { get; set; }
+    public AuctionHouse AuctionHouse { get; set; }
 }

@@ -19,82 +19,87 @@ public class FetchAuctionsProcess(WowClient wowClient, IItemDataService itemData
 
             try
             {
-                var auctionsResponse = await wowClient.GetAuctions();
-
-                auctionId = CreateMD5(JsonSerializer.Serialize(auctionsResponse));
-
-                var auction = await auctionService.GetAuction(auctionId);
-
-                if (auction == null)
+                for (var i = 0; i < 2; ++i)
                 {
-                    var previousAuction = await auctionService.GetLatestAuction();
+                    var auctionHouse = i == 0 ? AuctionHouse.Horde : AuctionHouse.Neutral;
+                    
+                    var auctionsResponse = await wowClient.GetAuctions(auctionHouse);
 
-                    var timer = new Stopwatch();
-                    timer.Start();
+                    auctionId = CreateMD5(JsonSerializer.Serialize(auctionsResponse));
 
-                    logger.LogInformation($"New Auction found with id: {auctionId}");
-                    logger.LogInformation("Fetch started");
+                    var auction = await auctionService.GetAuction(auctionId);
 
-                    await auctionService.CreateAuction(new Auction { Id = auctionId });
-
-                    var counter = 1;
-
-                    var newAuctionEntries = auctionsResponse.Auctions
-                        .Select(rae => AuctionEntry.Map(auctionId, rae)).ToList();
-
-                    var itemIds = newAuctionEntries.Select(nae => nae.ItemId).Distinct().ToList();
-
-                    foreach (var itemId in itemIds)
+                    if (auction == null)
                     {
-                        var item = await itemDataService.GetItemData(itemId);
+                        var previousAuction = await auctionService.GetLatestAuction(auctionHouse);
 
-                        if (item == null)
+                        var timer = new Stopwatch();
+                        timer.Start();
+
+                        logger.LogInformation($"New Auction found with id: {auctionId} for house: {auctionHouse}");
+                        logger.LogInformation("Fetch started");
+
+                        await auctionService.CreateAuction(new Auction { Id = auctionId, AuctionHouse = auctionHouse });
+
+                        var counter = 1;
+
+                        var newAuctionEntries = auctionsResponse.Auctions
+                            .Select(rae => AuctionEntry.Map(auctionId, rae)).ToList();
+
+                        var itemIds = newAuctionEntries.Select(nae => nae.ItemId).Distinct().ToList();
+
+                        foreach (var itemId in itemIds)
                         {
-                            item = await wowClient.GetItemData(itemId);
-                            ++counter;
+                            var item = await itemDataService.GetItemData(itemId);
 
                             if (item == null)
                             {
-                                logger.LogWarning($"Unable to find item with id: {itemId}");
-                                newAuctionEntries.RemoveAll(nae => nae.ItemId == itemId);
-                                continue;
+                                item = await wowClient.GetItemData(itemId);
+                                ++counter;
+
+                                if (item == null)
+                                {
+                                    logger.LogWarning($"Unable to find item with id: {itemId}");
+                                    newAuctionEntries.RemoveAll(nae => nae.ItemId == itemId);
+                                    continue;
+                                }
+
+                                await itemDataService.CreateItemData(item);
                             }
 
-                            await itemDataService.CreateItemData(item);
+                            if (counter != 100) continue;
+
+                            logger.LogInformation("100 requests reached, waiting 2 seconds...");
+                            counter = 0;
+                            await Task.Delay(2000, stoppingToken);
                         }
 
-                        if (counter != 100) continue;
+                        await auctionEntryService.CreateAuctionEntries(newAuctionEntries);
 
-                        logger.LogInformation("100 requests reached, waiting 2 seconds...");
-                        counter = 0;
-                        await Task.Delay(2000, stoppingToken);
-                    }
+                        timer.Stop();
+                        var timeTaken = timer.Elapsed;
 
-                    await auctionEntryService.CreateAuctionEntries(newAuctionEntries);
+                        logger.LogInformation($"Fetch finished, time elapsed: {timeTaken:m\\:ss\\.fff}");
 
-                    timer.Stop();
-                    var timeTaken = timer.Elapsed;
+                        if (previousAuction != null)
+                        {
+                            logger.LogInformation("Update sold items...");
 
-                    logger.LogInformation($"Fetch finished, time elapsed: {timeTaken:m\\:ss\\.fff}");
+                            var previousAuctionEntries =
+                                await auctionEntryService.GetAuctionEntriesFromAuctionId(previousAuction.Id);
 
-                    if (previousAuction != null)
-                    {
-                        logger.LogInformation("Update sold items...");
+                            var newAuctionEntryIds = newAuctionEntries.Select(nae => nae.Id);
 
-                        var previousAuctionEntries =
-                            await auctionEntryService.GetAuctionEntriesFromAuctionId(previousAuction.Id);
-
-                        var newAuctionEntryIds = newAuctionEntries.Select(nae => nae.Id);
-
-                        previousAuctionEntries.RemoveAll(pae =>
-                            pae.Buyout <= 0 || pae.TimeLeft == "SHORT" || pae.TimeLeft == "MEDIUM"
-                            || newAuctionEntryIds.Contains(pae.Id));
+                            previousAuctionEntries.RemoveAll(pae =>
+                                pae.Buyout <= 0 || pae.TimeLeft == "SHORT" || pae.TimeLeft == "MEDIUM"
+                                || newAuctionEntryIds.Contains(pae.Id));
 
 
-                        var result = await auctionEntryService.UpdateSoldAuctionEntries(previousAuction.Id,
-                            previousAuctionEntries.Select(pae => pae.Id).ToList());
+                            var result = await auctionEntryService.UpdateSoldAuctionEntries(previousAuction.Id,
+                                previousAuctionEntries.Select(pae => pae.Id).ToList());
 
-                        logger.LogInformation($"Update finished, {result} items sold");
+                            logger.LogInformation($"Update finished, {result} items sold");
+                        }
                     }
                 }
                 
